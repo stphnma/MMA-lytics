@@ -1,6 +1,7 @@
 import urllib2
 from urllib2 import HTTPError
 from bs4 import BeautifulSoup
+from datetime import datetime
 
 
 def get_totals_data(data):
@@ -180,6 +181,8 @@ def get_event_detail_links(url):
 
 MAIN_URL = "http://www.fightmetric.com/statistics/events/completed?page=all"
 
+SLEEP_INTERVAL = 15
+
 if __name__ == '__main__':
     
     import json
@@ -200,25 +203,27 @@ if __name__ == '__main__':
 
     for k in range(s, len(events)):
 
-        if k % 10 == 0:
+        if k % SLEEP_INTERVAL == 0 and k > 0:
             print "sleeping 60 seconds"
             time.sleep(60)
 
         e = events[k]
         e_details = get_event_detail_links(e)
         print k, e_details['fight_title']
-        e_data = []
-        # try:
-        import ipdb; ipdb.set_trace()
-        for url in e_details['links']:
-            if "fight-details" in url:
-                data = get_all(url)
-                data['date'] = e_details['date']
-                e_data.append(data)
-        to_file = os.getcwd() +"/raw/%s.json"%e_details['fight_title'].replace(" ", "_")
+        
+        if datetime.strptime(e_details['date'], "%B %d, %Y") < datetime.today():
 
-        with open(to_file, 'w') as fp:
-            json.dump(e_data, fp)
+            e_data = []
+            
+            for url in e_details['links']:
+                if "fight-details" in url:
+                    data = get_all(url)
+                    data['date'] = e_details['date']
+                    e_data.append(data)
+            to_file = os.getcwd() +"/raw/%s.json"%e_details['fight_title'].replace(" ", "_")
+
+            with open(to_file, 'w') as fp:
+                json.dump(e_data, fp)
 
         # except Exception as error:
         #     print e_details['fight_title'], error
