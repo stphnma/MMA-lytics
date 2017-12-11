@@ -3,15 +3,15 @@ import json
 import pandas as pd
 from datetime import datetime
 
-def extract():
-    files = os.listdir(os.getcwd() + "/raw")
+def extract(data_dir):
+    files = os.listdir(os.getcwd() + data_dir)
     totals = pd.DataFrame()
     fight_details = pd.DataFrame()
     sig_strikes = pd.DataFrame()
     fight_details = []
 
     for f in files:
-        with open(os.getcwd() + "/raw/"+f) as json_data:
+        with open(os.getcwd() + data_dir +f) as json_data:
             js = json.load(json_data)
 
             for dd in js:
